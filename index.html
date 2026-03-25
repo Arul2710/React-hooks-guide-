@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Hooks — Beginner's Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e2a;
+    --border: #252a38;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --use-color: #3ecf8e;
+    --effect-color: #4f9cf9;
+    --ref-color: #f97b4f;
+    --accent: #a78bfa;
+    --yellow: #fbbf24;
+    --pink: #f472b6;
+    --code-bg: #0a0c12;
+    --radius: 12px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  nav .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    text-decoration: none;
+    margin-right: auto;
+    letter-spacing: -0.5px;
+  }
+  nav a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--text); }
+  nav a.use { color: var(--use-color); }
+  nav a.effect { color: var(--effect-color); }
+  nav a.ref { color: var(--ref-color); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+  .hero .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 100px;
+    padding: 4px 16px;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto;
+    font-style: italic;
+  }
+
+  /* HOOK COLOR PILLS */
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.3px;
+  }
+  .pill.use { background: rgba(62,207,142,0.15); color: var(--use-color); }
+  .pill.effect { background: rgba(79,156,249,0.15); color: var(--effect-color); }
+  .pill.ref { background: rgba(249,123,79,0.15); color: var(--ref-color); }
+
+  /* SECTION */
+  section { margin-bottom: 72px; }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    padding-top: 24px;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 28px 0 10px;
+    letter-spacing: -0.3px;
+  }
+  p { margin-bottom: 14px; color: #c8cad6; }
+
+  /* HOOK HEADER */
+  .hook-header {
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .hook-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+  .hook-header.use { background: rgba(62,207,142,0.06); border-color: rgba(62,207,142,0.25); }
+  .hook-header.use::before { background: var(--use-color); }
+  .hook-header.effect { background: rgba(79,156,249,0.06); border-color: rgba(79,156,249,0.25); }
+  .hook-header.effect::before { background: var(--effect-color); }
+  .hook-header.ref { background: rgba(249,123,79,0.06); border-color: rgba(249,123,79,0.25); }
+  .hook-header.ref::before { background: var(--ref-color); }
+
+  .hook-header .hook-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .hook-header.use .hook-name { color: var(--use-color); }
+  .hook-header.effect .hook-name { color: var(--effect-color); }
+  .hook-header.ref .hook-name { color: var(--ref-color); }
+
+  .hook-header p { margin: 0; color: var(--muted); font-style: italic; font-size: 0.95rem; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    position: absolute;
+    top: 10px; right: 14px;
+    color: var(--muted);
+  }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text);
+    white-space: pre;
+  }
+  /* Syntax colors */
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .hook-use { color: var(--use-color); }
+  .hook-effect { color: var(--effect-color); }
+  .hook-ref { color: var(--ref-color); }
+  .jsx { color: #89ddff; }
+  .tag { color: #f07178; }
+  .attr { color: #ffcb6b; }
+
+  /* ANALOGY BOX */
+  .analogy {
+    background: rgba(167,139,250,0.07);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .analogy .analogy-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .analogy p { margin: 0; color: var(--text); font-style: italic; }
+
+  /* TIP BOX */
+  .tip {
+    background: rgba(251,191,36,0.07);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-left: 3px solid var(--yellow);
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    margin: 16px 0;
+  }
+  .tip .tip-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--yellow);
+    margin-bottom: 4px;
+  }
+  .tip p { margin: 0; color: #c8cad6; }
+
+  /* WARNING BOX */
+  .warning {
+    background: rgba(244,114,182,0.07);
+    border: 1px solid rgba(244,114,182,0.2);
+    border-left: 3px solid var(--pink);
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    margin: 16px 0;
+  }
+  .warning .warn-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--pink);
+    margin-bottom: 4px;
+  }
+  .warning p { margin: 0; color: #c8cad6; }
+
+  /* STEP LIST */
+  .steps { list-style: none; padding: 0; }
+  .steps li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .step-num.use { background: rgba(62,207,142,0.15); color: var(--use-color); }
+  .step-num.effect { background: rgba(79,156,249,0.15); color: var(--effect-color); }
+  .step-num.ref { background: rgba(249,123,79,0.15); color: var(--ref-color); }
+  .step-num.accent { background: rgba(167,139,250,0.15); color: var(--accent); }
+  .steps li p { margin: 0; color: #c8cad6; font-size: 0.93rem; }
+
+  /* DO / DON'T */
+  .do-dont {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  @media (max-width: 580px) { .do-dont { grid-template-columns: 1fr; } }
+  .do-card, .dont-card {
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    border: 1px solid;
+  }
+  .do-card { background: rgba(62,207,142,0.06); border-color: rgba(62,207,142,0.2); }
+  .dont-card { background: rgba(244,114,182,0.06); border-color: rgba(244,114,182,0.2); }
+  .do-card .card-label { color: var(--use-color); font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .dont-card .card-label { color: var(--pink); font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .do-card p, .dont-card p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+  /* COMPARISON TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin: 24px 0;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--surface2); }
+  thead th {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 14px 16px;
+    text-align: left;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody td {
+    padding: 13px 16px;
+    font-size: 0.88rem;
+    color: #b8bac8;
+    vertical-align: top;
+  }
+  tbody td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .td-use { color: var(--use-color) !important; }
+  .td-effect { color: var(--effect-color) !important; }
+  .td-ref { color: var(--ref-color) !important; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* MINI PROJECT */
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .project-header {
+    background: linear-gradient(135deg, rgba(167,139,250,0.12), rgba(79,156,249,0.08));
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .project-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    margin-bottom: 6px;
+    padding: 0;
+  }
+  .project-header p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .project-body { padding: 28px; }
+
+  /* HOOK BADGES IN USE */
+  .hook-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0 20px;
+  }
+  .h-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid;
+  }
+  .h-badge.use { background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.3); color: var(--use-color); }
+  .h-badge.effect { background: rgba(79,156,249,0.1); border-color: rgba(79,156,249,0.3); color: var(--effect-color); }
+  .h-badge.ref { background: rgba(249,123,79,0.1); border-color: rgba(249,123,79,0.3); color: var(--ref-color); }
+
+  /* INTRO CARD */
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 48px;
+  }
+  .intro-card h2 { padding: 0; margin-bottom: 14px; }
+
+  /* EXAMPLE LABEL */
+  .example-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin: 28px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .example-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* MEMORY TIP */
+  .memory-tip {
+    background: linear-gradient(135deg, rgba(62,207,142,0.05), rgba(167,139,250,0.05));
+    border: 1px solid rgba(167,139,250,0.15);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 24px 0;
+    text-align: center;
+  }
+  .memory-tip .mt-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .memory-tip .mt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .memory-tip p { margin: 8px 0 0; font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">⚛ React Hooks</a>
+  <a href="#what-are-hooks">Intro</a>
+  <a href="#usestate" class="use">useState</a>
+  <a href="#useeffect" class="effect">useEffect</a>
+  <a href="#useref" class="ref">useRef</a>
+  <a href="#comparison">Compare</a>
+  <a href="#project">Project</a>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">COMPLETE BEGINNER'S GUIDE</div>
+    <h1>React <span>Hooks</span> Explained</h1>
+    <p>useState, useEffect &amp; useRef — from zero to confident, with real examples and analogies.</p>
+  </div>
+
+  <!-- WHAT ARE HOOKS -->
+  <section id="what-are-hooks">
+    <div class="intro-card">
+      <h2>🪝 What Are React Hooks?</h2>
+      <p>Imagine you are building a house. The house is your React component. But a bare house needs <strong>electricity, plumbing, and memory</strong> to actually be useful. React Hooks are those built-in systems you can "plug into" to give your component superpowers.</p>
+      <p>In simple words: <strong>Hooks are special functions that let your components remember things, react to changes, and directly interact with the page.</strong></p>
+
+      <div class="analogy">
+        <div class="analogy-label">🏡 Real-life Analogy</div>
+        <p>A component without hooks is like a sticky note — it shows information but can't do anything on its own. Hooks are like turning that sticky note into a smartphone — now it can remember your inputs, connect to the internet, and interact with the world!</p>
+      </div>
+
+      <h3>The 3 Rules of Hooks</h3>
+      <ul class="steps">
+        <li>
+          <span class="step-num accent">1</span>
+          <p><strong>Only call hooks at the top level</strong> of your component. Never inside loops, conditions, or nested functions.</p>
+        </li>
+        <li>
+          <span class="step-num accent">2</span>
+          <p><strong>Only call hooks inside React function components</strong> (or your own custom hooks). Not in regular JS functions.</p>
+        </li>
+        <li>
+          <span class="step-num accent">3</span>
+          <p><strong>Hook names always start with "use"</strong> — that's the convention React uses to recognize them.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── useState ── -->
+  <section id="usestate">
+    <div class="hook-header use">
+      <div class="hook-name">useState</div>
+      <p>Gives your component a memory — it remembers data between renders.</p>
+    </div>
+
+    <h3>What is it? 🧠</h3>
+    <p>When your component needs to <strong>remember a value</strong> — like the number on a counter, the text in an input, or whether a checkbox is checked — you use <span class="pill use">useState</span>. Whenever the state changes, React automatically re-draws (re-renders) the component to show the new value.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">🛒 Real-life Analogy</div>
+      <p>Think of <code>useState</code> like a whiteboard in your kitchen. You write the number of eggs on it. Whenever you use one egg, you erase the old number and write the new one. Every time the whiteboard changes, everyone in the kitchen instantly sees the update.</p>
+    </div>
+
+    <h3>Syntax</h3>
+    <div class="code-block">
+      <div class="label">SYNTAX</div>
+      <pre><span class="kw">import</span> { <span class="hook-use">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cmt">// Pattern:</span>
+<span class="kw">const</span> [<span class="attr">value</span>, <span class="fn">setValue</span>] = <span class="hook-use">useState</span>(<span class="attr">initialValue</span>);
+
+<span class="cmt">// value     → the current state (what you READ)</span>
+<span class="cmt">// setValue  → the function to UPDATE the state</span>
+<span class="cmt">// useState(initialValue) → the starting value</span></pre>
+    </div>
+
+    <div class="tip">
+      <div class="tip-label">💡 Memory Trick</div>
+      <p>Think of <code>useState</code> as returning a pair: <strong>"the box"</strong> and <strong>"the way to change the box"</strong>. You always get two things out.</p>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="example-label">Example 1 — Counter</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">import</span> { <span class="hook-use">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [<span class="attr">count</span>, <span class="fn">setCount</span>] = <span class="hook-use">useState</span>(<span class="num">0</span>); <span class="cmt">// start at 0</span>
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">div</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>You clicked <span class="jsx">{</span><span class="attr">count</span><span class="jsx">}</span> times<span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="jsx">={() =&gt;</span> <span class="fn">setCount</span>(<span class="attr">count</span> + <span class="num">1</span>)<span class="jsx">}&gt;</span>
+        Click me!
+      <span class="jsx">&lt;/</span><span class="tag">button</span><span class="jsx">&gt;</span>
+    <span class="jsx">&lt;/</span><span class="tag">div</span><span class="jsx">&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <h3>Step-by-step: How does this work?</h3>
+    <ul class="steps">
+      <li><span class="step-num use">1</span><p><code>useState(0)</code> creates a memory slot called <code>count</code>, starting at <strong>0</strong>.</p></li>
+      <li><span class="step-num use">2</span><p>React displays the component: the screen shows "You clicked 0 times".</p></li>
+      <li><span class="step-num use">3</span><p>You click the button. The <code>onClick</code> calls <code>setCount(count + 1)</code>.</p></li>
+      <li><span class="step-num use">4</span><p>React sees the state changed. It re-renders the component. Now <code>count</code> is <strong>1</strong>.</p></li>
+      <li><span class="step-num use">5</span><p>The screen now shows "You clicked 1 times". This cycle repeats every click.</p></li>
+    </ul>
+
+    <!-- Example 2 -->
+    <div class="example-label">Example 2 — Toggle (Show/Hide)</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">function</span> <span class="fn">Spoiler</span>() {
+  <span class="kw">const</span> [<span class="attr">isVisible</span>, <span class="fn">setIsVisible</span>] = <span class="hook-use">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">div</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="jsx">={() =&gt;</span> <span class="fn">setIsVisible</span>(!<span class="attr">isVisible</span>)<span class="jsx">}&gt;</span>
+        <span class="jsx">{</span><span class="attr">isVisible</span> ? <span class="str">'Hide Spoiler'</span> : <span class="str">'Reveal Spoiler'</span><span class="jsx">}</span>
+      <span class="jsx">&lt;/</span><span class="tag">button</span><span class="jsx">&gt;</span>
+
+      <span class="jsx">{</span><span class="attr">isVisible</span> &amp;&amp;
+        <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>🐉 The dragon was the good guy all along!<span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>
+      <span class="jsx">}</span>
+    <span class="jsx">&lt;/</span><span class="tag">div</span><span class="jsx">&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <h3>When to use useState ✅</h3>
+    <div class="do-dont">
+      <div class="do-card">
+        <div class="card-label">✅ Use it when</div>
+        <p>You need to track values that <strong>change over time</strong> AND need to <strong>update the UI</strong> — counts, form inputs, toggles, selected items, loading states, error messages.</p>
+      </div>
+      <div class="dont-card">
+        <div class="card-label">❌ Don't use it when</div>
+        <p>The value changes but <strong>doesn't need to update the screen</strong> (use useRef instead), OR the value never changes at all (just use a regular variable).</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <div class="warn-label">⚠️ Common Beginner Mistakes</div>
+      <p><strong>Mistake 1:</strong> Modifying state directly — <code>count = count + 1</code> — This does NOT work. Always use the setter: <code>setCount(count + 1)</code>.</p>
+      <br>
+      <p><strong>Mistake 2:</strong> Reading state right after setting it. State updates happen asynchronously. The new value won't be available on the very next line — React batches them for performance.</p>
+    </div>
+
+    <div class="memory-tip">
+      <div class="mt-label">🧠 Memory Trick</div>
+      <div class="mt-text">useState = "Remember this for me, React!"</div>
+      <p>You hand React a value to remember, and ask for it back — plus a way to change it.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── useEffect ── -->
+  <section id="useeffect">
+    <div class="hook-header effect">
+      <div class="hook-name">useEffect</div>
+      <p>Runs code after the component renders — like setting up side effects.</p>
+    </div>
+
+    <h3>What is it? ⚡</h3>
+    <p><span class="pill effect">useEffect</span> lets you run code <strong>after</strong> your component appears on the screen. It's perfect for things that happen "on the side" — fetching data from an API, starting a timer, or subscribing to events. These are called <em>side effects</em> because they live outside of rendering.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">☕ Real-life Analogy</div>
+      <p>Imagine you move into a new apartment. Once you're settled in (rendered), you do some setup work: subscribe to Netflix, turn on the Wi-Fi, water the plants. That's <code>useEffect</code> — it's the code you run <em>after</em> you've arrived, not during the move itself.</p>
+    </div>
+
+    <h3>Syntax</h3>
+    <div class="code-block">
+      <div class="label">SYNTAX</div>
+      <pre><span class="kw">import</span> { <span class="hook-effect">useEffect</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="hook-effect">useEffect</span>(<span class="jsx">() =&gt;</span> {
+  <span class="cmt">// Your side-effect code goes here</span>
+
+  <span class="kw">return</span> () <span class="jsx">=&gt;</span> {
+    <span class="cmt">// Optional: Cleanup code (runs before next effect or unmount)</span>
+  };
+}, [<span class="attr">dependency1</span>, <span class="attr">dependency2</span>]); <span class="cmt">// ← The dependency array</span></pre>
+    </div>
+
+    <h3>🎯 The Dependency Array — Explained Simply</h3>
+    <p>The second argument of <code>useEffect</code> is the <strong>dependency array</strong>. It tells React <em>when</em> to re-run the effect. Think of it as a watch list.</p>
+
+    <div class="code-block">
+      <div class="label">3 CASES</div>
+      <pre><span class="cmt">// Case 1: No array — runs after EVERY render</span>
+<span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'runs always!'</span>); });
+
+<span class="cmt">// Case 2: Empty array [] — runs ONCE (on mount only)</span>
+<span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'runs once on load'</span>); }, []);
+
+<span class="cmt">// Case 3: [value] — runs when 'value' changes</span>
+<span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'count changed!'</span>); }, [<span class="attr">count</span>]);</pre>
+    </div>
+
+    <div class="tip">
+      <div class="tip-label">💡 Dependency Array Trick</div>
+      <p>Ask yourself: <em>"What values does my effect use?"</em> Those values go in the array. If you use <code>userId</code> inside the effect, put <code>[userId]</code> in the array. If you use nothing, use <code>[]</code>.</p>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="example-label">Example 1 — Page Title Updater</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">function</span> <span class="fn">PageTitleCounter</span>() {
+  <span class="kw">const</span> [<span class="attr">count</span>, <span class="fn">setCount</span>] = <span class="hook-use">useState</span>(<span class="num">0</span>);
+
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="cmt">// This runs every time 'count' changes</span>
+    <span class="fn">document</span>.title = <span class="str">`You clicked </span><span class="jsx">${</span><span class="attr">count</span><span class="jsx">}</span><span class="str"> times`</span>;
+  }, [<span class="attr">count</span>]); <span class="cmt">// ← Watches 'count'</span>
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="jsx">={() =&gt;</span> <span class="fn">setCount</span>(<span class="attr">count</span> + <span class="num">1</span>)<span class="jsx">}&gt;</span>
+      Click (<span class="jsx">{</span><span class="attr">count</span><span class="jsx">}</span>)
+    <span class="jsx">&lt;/</span><span class="tag">button</span><span class="jsx">&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <h3>Step-by-step: How does this work?</h3>
+    <ul class="steps">
+      <li><span class="step-num effect">1</span><p>Component renders for the first time. <code>count</code> is 0.</p></li>
+      <li><span class="step-num effect">2</span><p>After rendering, <code>useEffect</code> runs — sets document title to "You clicked 0 times".</p></li>
+      <li><span class="step-num effect">3</span><p>You click the button. <code>count</code> becomes 1. Component re-renders.</p></li>
+      <li><span class="step-num effect">4</span><p>React checks the dependency array <code>[count]</code> — count changed? Yes! So it runs the effect again.</p></li>
+      <li><span class="step-num effect">5</span><p>Title is now "You clicked 1 times". Cycle repeats on every click.</p></li>
+    </ul>
+
+    <!-- Example 2 -->
+    <div class="example-label">Example 2 — Fetch Data on Load</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">function</span> <span class="fn">UserProfile</span>({ <span class="attr">userId</span> }) {
+  <span class="kw">const</span> [<span class="attr">user</span>, <span class="fn">setUser</span>] = <span class="hook-use">useState</span>(<span class="kw">null</span>);
+
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="cmt">// Fetch user data when userId changes</span>
+    <span class="fn">fetch</span>(<span class="str">`/api/users/</span><span class="jsx">${</span><span class="attr">userId</span><span class="jsx">}</span><span class="str">`</span>)
+      .<span class="fn">then</span>(<span class="attr">res</span> <span class="jsx">=&gt;</span> <span class="attr">res</span>.<span class="fn">json</span>())
+      .<span class="fn">then</span>(<span class="attr">data</span> <span class="jsx">=&gt;</span> <span class="fn">setUser</span>(<span class="attr">data</span>));
+  }, [<span class="attr">userId</span>]); <span class="cmt">// ← Re-fetch if userId changes</span>
+
+  <span class="kw">if</span> (!<span class="attr">user</span>) <span class="kw">return</span> <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>Loading...<span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>;
+  <span class="kw">return</span> <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>Hello, <span class="jsx">{</span><span class="attr">user</span>.name<span class="jsx">}</span>!<span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>;
+}</pre>
+    </div>
+
+    <h3>The Cleanup Function 🧹</h3>
+    <p>Sometimes your effect creates something that needs to be cleaned up — like a timer or an event listener. You return a function from <code>useEffect</code> to handle this:</p>
+    <div class="code-block">
+      <div class="label">CLEANUP</div>
+      <pre><span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+  <span class="kw">const</span> <span class="attr">timer</span> = <span class="fn">setInterval</span>(() <span class="jsx">=&gt;</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'tick!'</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="kw">return</span> () <span class="jsx">=&gt;</span> {
+    <span class="fn">clearInterval</span>(<span class="attr">timer</span>); <span class="cmt">// 🧹 Stop timer when component leaves</span>
+  };
+}, []);</pre>
+    </div>
+
+    <h3>When to use useEffect ✅</h3>
+    <div class="do-dont">
+      <div class="do-card">
+        <div class="card-label">✅ Use it when</div>
+        <p>You need to <strong>fetch data</strong>, <strong>start timers</strong>, <strong>add event listeners</strong>, <strong>update the document title</strong>, or do anything that reaches <em>outside</em> React's world.</p>
+      </div>
+      <div class="dont-card">
+        <div class="card-label">❌ Don't use it when</div>
+        <p>You're just computing a value from existing state/props — do that directly during render. Don't put calculations inside useEffect just to store them in state (causes double renders).</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <div class="warn-label">⚠️ Common Beginner Mistakes</div>
+      <p><strong>Mistake 1:</strong> Missing the dependency array — your effect runs after <em>every</em> single render, which can cause infinite loops (especially if you call <code>setState</code> inside).</p>
+      <br>
+      <p><strong>Mistake 2:</strong> Using a stale value inside the effect because you forgot to add it to the dependency array. If your effect uses <code>count</code>, always add <code>count</code> to the array.</p>
+    </div>
+
+    <div class="memory-tip">
+      <div class="mt-label">🧠 Memory Trick</div>
+      <div class="mt-text">useEffect = "After you show up, do this."</div>
+      <p>It's the hook that runs <em>after</em> the component renders. Side effects happen on the side — after the main show.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── useRef ── -->
+  <section id="useref">
+    <div class="hook-header ref">
+      <div class="hook-name">useRef</div>
+      <p>A silent note — stores a value or grabs a DOM element without triggering re-renders.</p>
+    </div>
+
+    <h3>What is it? 📌</h3>
+    <p><span class="pill ref">useRef</span> is like a sticky note attached to the back of your component — you can write on it and read it, but <strong>changing it does NOT cause the component to re-draw</strong>. It has two main uses: <strong>1)</strong> remembering a value silently, and <strong>2)</strong> directly accessing a DOM element (like an input box).</p>
+
+    <div class="analogy">
+      <div class="analogy-label">🗒️ Real-life Analogy</div>
+      <p>Imagine a sticky note on the back of your laptop screen. You can jot things on it — a phone number, a reminder — and check it anytime. But nobody else sees it change, and nobody reacts to it. That's <code>useRef</code>: private, silent, always there.</p>
+    </div>
+
+    <h3>Syntax</h3>
+    <div class="code-block">
+      <div class="label">SYNTAX</div>
+      <pre><span class="kw">import</span> { <span class="hook-ref">useRef</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> <span class="attr">myRef</span> = <span class="hook-ref">useRef</span>(<span class="attr">initialValue</span>);
+
+<span class="cmt">// The ref object always has one property: .current</span>
+<span class="attr">myRef</span>.current <span class="cmt">// ← read the value</span>
+<span class="attr">myRef</span>.current = <span class="str">'new value'</span>; <span class="cmt">// ← change the value (no re-render!)</span>
+
+<span class="cmt">// For DOM access:</span>
+<span class="jsx">&lt;</span><span class="tag">input</span> <span class="attr">ref</span><span class="jsx">={</span><span class="attr">myRef</span><span class="jsx">}</span> <span class="jsx">/&gt;</span> <span class="cmt">// ← attach ref to an element</span></pre>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="example-label">Example 1 — Auto-Focus an Input</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">function</span> <span class="fn">SearchBar</span>() {
+  <span class="kw">const</span> <span class="attr">inputRef</span> = <span class="hook-ref">useRef</span>(<span class="kw">null</span>); <span class="cmt">// point at nothing yet</span>
+
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="attr">inputRef</span>.current.<span class="fn">focus</span>(); <span class="cmt">// focus the real DOM input</span>
+  }, []); <span class="cmt">// only once, on load</span>
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">input</span>
+      <span class="attr">ref</span><span class="jsx">={</span><span class="attr">inputRef</span><span class="jsx">}</span>
+      <span class="attr">placeholder</span><span class="jsx">=</span><span class="str">"Type to search..."</span>
+    <span class="jsx">/&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <h3>Step-by-step: How does this work?</h3>
+    <ul class="steps">
+      <li><span class="step-num ref">1</span><p><code>useRef(null)</code> creates a ref object: <code>{"{ current: null }"}</code>.</p></li>
+      <li><span class="step-num ref">2</span><p>The <code>ref={"{inputRef}"}</code> on the input tells React: "When this input is created in the DOM, attach it to <code>inputRef.current</code>".</p></li>
+      <li><span class="step-num ref">3</span><p>After the component renders, <code>useEffect</code> runs. Now <code>inputRef.current</code> points to the real HTML input element.</p></li>
+      <li><span class="step-num ref">4</span><p><code>inputRef.current.focus()</code> calls the browser's native focus — the cursor jumps into the input automatically!</p></li>
+    </ul>
+
+    <!-- Example 2 -->
+    <div class="example-label">Example 2 — Count Renders Without Re-rendering</div>
+    <div class="code-block">
+      <div class="label">JSX</div>
+      <pre><span class="kw">function</span> <span class="fn">RenderCounter</span>() {
+  <span class="kw">const</span> [<span class="attr">text</span>, <span class="fn">setText</span>] = <span class="hook-use">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> <span class="attr">renderCount</span> = <span class="hook-ref">useRef</span>(<span class="num">0</span>);
+
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="attr">renderCount</span>.current += <span class="num">1</span>; <span class="cmt">// silently increment, no re-render!</span>
+  });
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">div</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">input</span> <span class="attr">value</span><span class="jsx">={</span><span class="attr">text</span><span class="jsx">}</span> <span class="attr">onChange</span><span class="jsx">={</span><span class="attr">e</span> <span class="jsx">=&gt;</span> <span class="fn">setText</span>(<span class="attr">e</span>.target.value)<span class="jsx">}</span> <span class="jsx">/&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>This component rendered <span class="jsx">{</span><span class="attr">renderCount</span>.current<span class="jsx">}</span> times.<span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>
+    <span class="jsx">&lt;/</span><span class="tag">div</span><span class="jsx">&gt;</span>
+  );
+}</pre>
+    </div>
+
+    <h3>When to use useRef ✅</h3>
+    <div class="do-dont">
+      <div class="do-card">
+        <div class="card-label">✅ Use it when</div>
+        <p>You need to <strong>access a DOM element</strong> directly (focus, scroll, measure), OR store a value that changes but <strong>must not trigger re-renders</strong> (previous value, timer ID, render count).</p>
+      </div>
+      <div class="dont-card">
+        <div class="card-label">❌ Don't use it when</div>
+        <p>Your value change needs to <strong>update the screen</strong>. If you change <code>ref.current</code>, the UI won't update. That's what <code>useState</code> is for.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <div class="warn-label">⚠️ Common Beginner Mistakes</div>
+      <p><strong>Mistake 1:</strong> Using <code>useRef</code> when you actually need <code>useState</code>. If you write <code>myRef.current = 5</code> and expect the screen to show 5 — it won't.</p>
+      <br>
+      <p><strong>Mistake 2:</strong> Accessing <code>ref.current</code> during the render phase (before the component has mounted). Always access refs inside <code>useEffect</code> or event handlers, not at the top level of the component.</p>
+    </div>
+
+    <div class="memory-tip">
+      <div class="mt-label">🧠 Memory Trick</div>
+      <div class="mt-text">useRef = "A secret pocket — no one reacts to it."</div>
+      <p>It stores things quietly. It doesn't shout. React ignores it during rendering.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BONUS: useState vs useRef -->
+  <section id="vs">
+    <h2>⚔️ Bonus: useState vs useRef</h2>
+    <p>This confuses so many beginners! Here's the clearest way to think about it:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th style="color: var(--use-color)">useState</th>
+            <th style="color: var(--ref-color)">useRef</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Causes re-render?</td>
+            <td>✅ Yes — always</td>
+            <td>❌ No — never</td>
+          </tr>
+          <tr>
+            <td>Updates the UI?</td>
+            <td>✅ Yes</td>
+            <td>❌ No</td>
+          </tr>
+          <tr>
+            <td>Can access DOM?</td>
+            <td>❌ No</td>
+            <td>✅ Yes (via ref={"{ref}"})</td>
+          </tr>
+          <tr>
+            <td>Persists across renders?</td>
+            <td>✅ Yes</td>
+            <td>✅ Yes</td>
+          </tr>
+          <tr>
+            <td>Use for</td>
+            <td>Counter, input text, toggle</td>
+            <td>Focus, timers, scroll, render count</td>
+          </tr>
+          <tr>
+            <td>Golden rule</td>
+            <td>If it shows on screen → useState</td>
+            <td>If it's invisible/silent → useRef</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip">
+      <div class="tip-label">💡 One-line rule</div>
+      <p><strong>useState</strong> = "The user needs to SEE this change." &nbsp;|&nbsp; <strong>useRef</strong> = "I need to remember this, but don't bother redrawing."</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COMPARISON TABLE -->
+  <section id="comparison">
+    <h2>📊 All Three Hooks — Side by Side</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th style="color: var(--use-color)">useState</th>
+            <th style="color: var(--effect-color)">useEffect</th>
+            <th style="color: var(--ref-color)">useRef</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Purpose</td>
+            <td>Remember & update UI values</td>
+            <td>Run code after render</td>
+            <td>Access DOM / silent memory</td>
+          </tr>
+          <tr>
+            <td>Triggers re-render?</td>
+            <td class="td-use">✅ Yes</td>
+            <td>❌ No</td>
+            <td class="td-ref">❌ No</td>
+          </tr>
+          <tr>
+            <td>Runs when?</td>
+            <td>On state change</td>
+            <td>After render (+ deps change)</td>
+            <td>Anytime you access .current</td>
+          </tr>
+          <tr>
+            <td>Has cleanup?</td>
+            <td>No</td>
+            <td class="td-effect">✅ Yes (return function)</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Can touch DOM?</td>
+            <td>❌</td>
+            <td>✅ (after render)</td>
+            <td class="td-ref">✅ (via .current)</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Counters, forms, toggles</td>
+            <td>API calls, timers, subscriptions</td>
+            <td>focus(), scrollTo(), prev value</td>
+          </tr>
+          <tr>
+            <td>Analogy</td>
+            <td>Whiteboard (visible)</td>
+            <td>Post-move setup tasks</td>
+            <td>Sticky note (invisible)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MINI PROJECT -->
+  <section id="project">
+    <div class="project-card">
+      <div class="project-header">
+        <h2>🚀 Mini Project: Smart Search Input</h2>
+        <p>A real-world component that uses all three hooks together — with auto-focus, a live character count, and a search history tracker.</p>
+        <div class="hook-badges">
+          <span class="h-badge use">useState</span>
+          <span class="h-badge effect">useEffect</span>
+          <span class="h-badge ref">useRef</span>
+        </div>
+      </div>
+      <div class="project-body">
+        <p>Here's what this component does: it auto-focuses the search box, tracks what you type, updates the page title live, and remembers the previous search — all three hooks working together.</p>
+
+        <div class="code-block">
+          <div class="label">FULL COMPONENT</div>
+          <pre><span class="kw">import</span> { <span class="hook-use">useState</span>, <span class="hook-effect">useEffect</span>, <span class="hook-ref">useRef</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">SmartSearch</span>() {
+  <span class="cmt">// ① useState: remember the current search text</span>
+  <span class="kw">const</span> [<span class="attr">query</span>, <span class="fn">setQuery</span>] = <span class="hook-use">useState</span>(<span class="str">''</span>);
+
+  <span class="cmt">// ① useState: remember the list of past searches</span>
+  <span class="kw">const</span> [<span class="attr">history</span>, <span class="fn">setHistory</span>] = <span class="hook-use">useState</span>([]);
+
+  <span class="cmt">// ② useRef: grab the real input DOM element</span>
+  <span class="kw">const</span> <span class="attr">inputRef</span> = <span class="hook-ref">useRef</span>(<span class="kw">null</span>);
+
+  <span class="cmt">// ② useRef: silently remember the previous query</span>
+  <span class="kw">const</span> <span class="attr">prevQuery</span> = <span class="hook-ref">useRef</span>(<span class="str">''</span>);
+
+  <span class="cmt">// ③ useEffect: auto-focus the input on load</span>
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="attr">inputRef</span>.current.<span class="fn">focus</span>();
+  }, []); <span class="cmt">// empty array = runs once</span>
+
+  <span class="cmt">// ③ useEffect: update the page title whenever query changes</span>
+  <span class="hook-effect">useEffect</span>(() <span class="jsx">=&gt;</span> {
+    <span class="attr">document</span>.title = <span class="attr">query</span>
+      ? <span class="str">`Searching: </span><span class="jsx">${</span><span class="attr">query</span><span class="jsx">}</span><span class="str">`</span>
+      : <span class="str">'Smart Search'</span>;
+  }, [<span class="attr">query</span>]); <span class="cmt">// runs when query changes</span>
+
+  <span class="kw">const</span> <span class="fn">handleSearch</span> = () <span class="jsx">=&gt;</span> {
+    <span class="kw">if</span> (!<span class="attr">query</span>.<span class="fn">trim</span>()) <span class="kw">return</span>;
+
+    <span class="cmt">// Save previous query via ref (no re-render)</span>
+    <span class="attr">prevQuery</span>.current = <span class="attr">query</span>;
+
+    <span class="cmt">// Add to history via state (triggers re-render to show it)</span>
+    <span class="fn">setHistory</span>(<span class="attr">prev</span> <span class="jsx">=&gt;</span> [<span class="attr">query</span>, ...<span class="attr">prev</span>.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">4</span>)]);
+    <span class="fn">setQuery</span>(<span class="str">''</span>);
+  };
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;</span><span class="tag">div</span> <span class="attr">style</span><span class="jsx">={{</span> padding: <span class="str">'20px'</span> <span class="jsx">}}&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">h2</span><span class="jsx">&gt;</span>🔍 Smart Search<span class="jsx">&lt;/</span><span class="tag">h2</span><span class="jsx">&gt;</span>
+
+      <span class="jsx">&lt;</span><span class="tag">input</span>
+        <span class="attr">ref</span><span class="jsx">={</span><span class="attr">inputRef</span><span class="jsx">}</span>         <span class="cmt">{/* useRef attaches here */}</span>
+        <span class="attr">value</span><span class="jsx">={</span><span class="attr">query</span><span class="jsx">}</span>          <span class="cmt">{/* useState controls this */}</span>
+        <span class="attr">onChange</span><span class="jsx">={</span><span class="attr">e</span> <span class="jsx">=&gt;</span> <span class="fn">setQuery</span>(<span class="attr">e</span>.target.value)<span class="jsx">}</span>
+        <span class="attr">placeholder</span><span class="jsx">=</span><span class="str">"Search..."</span>
+      <span class="jsx">/&gt;</span>
+
+      <span class="jsx">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span><span class="jsx">={</span><span class="attr">handleSearch</span><span class="jsx">}&gt;</span>Search<span class="jsx">&lt;/</span><span class="tag">button</span><span class="jsx">&gt;</span>
+
+      <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>Characters: <span class="jsx">{</span><span class="attr">query</span>.length<span class="jsx">}</span><span class="jsx">&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>
+
+      <span class="jsx">{</span><span class="attr">prevQuery</span>.current &amp;&amp;
+        <span class="jsx">&lt;</span><span class="tag">p</span><span class="jsx">&gt;</span>Last searched: <span class="jsx">{</span><span class="attr">prevQuery</span>.current<span class="jsx">}&lt;/</span><span class="tag">p</span><span class="jsx">&gt;</span>
+      <span class="jsx">}</span>
+
+      <span class="jsx">&lt;</span><span class="tag">h3</span><span class="jsx">&gt;</span>Recent Searches:<span class="jsx">&lt;/</span><span class="tag">h3</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;</span><span class="tag">ul</span><span class="jsx">&gt;</span>
+        <span class="jsx">{</span><span class="attr">history</span>.<span class="fn">map</span>((<span class="attr">item</span>, <span class="attr">i</span>) <span class="jsx">=&gt;</span>
+          <span class="jsx">&lt;</span><span class="tag">li</span> <span class="attr">key</span><span class="jsx">={</span><span class="attr">i</span><span class="jsx">}&gt;{</span><span class="attr">item</span><span class="jsx">}&lt;/</span><span class="tag">li</span><span class="jsx">&gt;</span>
+        )<span class="jsx">}</span>
+      <span class="jsx">&lt;/</span><span class="tag">ul</span><span class="jsx">&gt;</span>
+    <span class="jsx">&lt;/</span><span class="tag">div</span><span class="jsx">&gt;</span>
+  );
+}</pre>
+        </div>
+
+        <h3>How all three work together:</h3>
+        <ul class="steps">
+          <li><span class="step-num use">S</span><p><strong>useState</strong> manages <code>query</code> (current text) and <code>history</code> (past searches) — both need to update the screen.</p></li>
+          <li><span class="step-num effect">E</span><p><strong>useEffect</strong> auto-focuses the input on load (<code>[]</code>), and updates the browser tab title each time <code>query</code> changes (<code>[query]</code>).</p></li>
+          <li><span class="step-num ref">R</span><p><strong>useRef</strong> grabs the DOM input for focus control, and silently tracks <code>prevQuery</code> without triggering any re-renders.</p></li>
+        </ul>
+
+        <div class="tip">
+          <div class="tip-label">💡 Why not use useState for prevQuery?</div>
+          <p>Because we don't need the UI to immediately react to <code>prevQuery</code> changing. It's internal bookkeeping. Putting it in <code>useRef</code> is more efficient — no extra renders.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FINAL CHEATSHEET -->
+  <section>
+    <h2>🎯 Quick Decision Guide</h2>
+    <p>Next time you're not sure which hook to reach for, ask yourself these questions:</p>
+    <ul class="steps">
+      <li><span class="step-num accent">?</span><p><strong>"Does this value need to update the screen when it changes?"</strong> → Yes: <span class="pill use">useState</span> | No: <span class="pill ref">useRef</span></p></li>
+      <li><span class="step-num accent">?</span><p><strong>"Do I need to fetch data, start a timer, or talk to the outside world?"</strong> → Yes: <span class="pill effect">useEffect</span></p></li>
+      <li><span class="step-num accent">?</span><p><strong>"Do I need to directly access an HTML element (like an input or div)?"</strong> → Yes: <span class="pill ref">useRef</span></p></li>
+      <li><span class="step-num accent">?</span><p><strong>"Do I need to remember something only once, when the component first loads?"</strong> → Yes: <span class="pill effect">useEffect</span> with <code>[]</code></p></li>
+    </ul>
+  </section>
+
+</div>
+
+</body>
+</html>
