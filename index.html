@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>React Hooks — Beginner's Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1114,6 +1115,77 @@
       <li><span class="step-num accent">?</span><p><strong>"Do I need to remember something only once, when the component first loads?"</strong> → Yes: <span class="pill effect">useEffect</span> with <code>[]</code></p></li>
     </ul>
   </section>
+
+
+  <style>
+    /* Footer Style */
+    footer {
+        
+        padding: 20px 0;
+        margin-top: 50px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .footer-content {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .copyright {
+        letter-spacing: 0.5px;
+    }
+
+    .copyright span {
+        color: var(--accent); /* Arulprakash name in Purple */
+        font-weight: 600;
+    }
+
+    .footer-icons {
+        display: flex;
+        gap: 20px;
+    }
+
+    .footer-icons a {
+        color: var(--muted);
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .footer-icons a:hover {
+        color: var(--effect-color);
+        transform: scale(1.1);
+    }
+
+    /* Oru chinna line design */
+    .footer-line {
+        height: 1px;
+        width: 50px;
+        background: var(--border);
+    }
+</style>
+
+<footer>
+    <div class="footer-content">
+        <div class="copyright">
+            &copy; 2026 All Rights Reserved | <span>ARULPRAKASH</span>
+        </div>
+        
+        <div class="footer-line"></div>
+
+        <div class="footer-icons">
+            <a href="https://github.com/Arul2710" target="_blank"><i class="fa-brands fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/arul-prakash-s2004/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+          
+        </div>
+    </div>
+</footer>
 
 </div>
 
